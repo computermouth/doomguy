@@ -1,0 +1,10 @@
+main
+tools/concoord/concoord
+*.gch
+*.o
+img/**/*.h
+img/**/*.c
+test.mp
+facegame.opk
+tools/fontgen/a.out
+tools/fmanip/fmanip
