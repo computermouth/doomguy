@@ -841,12 +841,14 @@ ww_sprite_t * ww_new_sprite(ww_reference_t payload){
 		
 		//~ printf("pre-delay -- curr: %p targ: %p\n", (void *)c, (void *)&s->animations[a].frames);
 		s->animations[a].count = payload.frames[fstride];
+		s->animations[a].s_parent = s;
 		
 		// copy in delay -- ensure at least 1
 		s->animations[a].delay = (void *)c;
 		for(int i = 0; i < payload.frames[fstride]; i++){
 			s->animations[a].delay[i] = ( payload.delays[a][i] > 0 ? payload.delays[a][i] : 1 );
 		}
+		s->animations[a].d_progress = s->animations[a].delay[0];
 		
 		c += sizeof(int) * payload.frames[fstride];
 		
@@ -1234,25 +1236,32 @@ int ww_draw_frame(ww_frame_t * frame){
 int ww_draw_animation(ww_animation_t * anim, int paused){
 	//~ printf("draw_a\n");
 	
+		//~ int rc = 0;
+	int rc = ww_draw_frame(&anim->frames[anim->active_frame]);
 	//~ printf("anim: %d\n", anim->frames[0].polys[0].x[0]);
 	if (paused == 0) {
 		//~ anim->d_progress -= ww_frames_passed();
 		anim->d_progress--;
 		
-		while(anim->d_progress <= 0){
+		//~ while(anim->d_progress <= 0){
+		if (anim->d_progress <= 0){
 			
-			int old_delay = anim->delay[anim->active_frame];
+			//~ int old_delay = anim->delay[anim->active_frame];
 			anim->active_frame++;
 			
-			if(anim->active_frame == anim->count)
+			if(anim->active_frame == anim->count){
 				anim->active_frame = 0;
-			
-			anim->d_progress = anim->delay[anim->active_frame] - (anim->d_progress % old_delay);
+				
+				if(anim->anim_end != NULL)
+					anim->anim_end((void*)(anim->s_parent));
+			}
+			anim->d_progress = anim->delay[anim->active_frame];
 		}
+			
+			//~ anim->d_progress = anim->delay[anim->active_frame] - (anim->d_progress % old_delay);
+		//~ }
 		
 	}
-		//~ int rc = 0;
-	int rc = ww_draw_frame(&anim->frames[anim->active_frame]);
 	
 	return rc;
 	

@@ -132,6 +132,8 @@ typedef struct {
 	int d_progress;
 	int active_frame;
 	int count;
+	void *s_parent; // pointer to sprite
+	void (*anim_end)(void *);
 } ww_animation_t;
 
 typedef struct {
